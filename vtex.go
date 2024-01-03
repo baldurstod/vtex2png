@@ -283,6 +283,7 @@ func (this *VtexFile) GetVtexData() []byte {
 
 
 					if (size == compressedMipSize) {
+						// No compression
 						if (size == ^uint32(0)) { // read until eof
 							size = uint32(reader.Len())
 						}
@@ -294,6 +295,7 @@ func (this *VtexFile) GetVtexData() []byte {
 							panic("cannot read bytes")
 						}
 					} else {
+						// lz4 compression
 						compressedBuffer := make([]byte, compressedMipSize)
 						buffer = make([]byte, size)
 						n, _ := reader.Read(compressedBuffer)
@@ -303,27 +305,39 @@ func (this *VtexFile) GetVtexData() []byte {
 						}
 
 						lz4.UncompressBlock(compressedBuffer, buffer)
-
-
-						img := image.NewNRGBA(image.Rect(0, 0, mipmapWidth, mipmapHeight))
-
-						bufferIndex := 0
-						for y := 0; y < mipmapHeight; y++ {
-							for x := 0; x < mipmapWidth; x++ {
-								img.Set(x, y, color.NRGBA{
-									R: uint8(buffer[bufferIndex + 0]),
-									G: uint8(buffer[bufferIndex + 1]),
-									B: uint8(buffer[bufferIndex + 2]),
-									A: uint8(buffer[bufferIndex + 3]),
-								})
-								bufferIndex += 4
-							}
-						}
-
-						pngBuffer := bytes.Buffer{}
-						png.Encode(&pngBuffer, img)
-						buffer = pngBuffer.Bytes()
 					}
+
+					switch int(vtexData.ImageFormat) {
+						case VTEX_FORMAT_DXT1, VTEX_FORMAT_DXT5, VTEX_FORMAT_R8, VTEX_FORMAT_R8G8B8A8_UINT, VTEX_FORMAT_BGRA8888, VTEX_FORMAT_BC4, VTEX_FORMAT_BC7:
+							img := image.NewNRGBA(image.Rect(0, 0, mipmapWidth, mipmapHeight))
+
+							bufferIndex := 0
+							for y := 0; y < mipmapHeight; y++ {
+								for x := 0; x < mipmapWidth; x++ {
+									img.Set(x, y, color.NRGBA{
+										R: uint8(buffer[bufferIndex + 0]),
+										G: uint8(buffer[bufferIndex + 1]),
+										B: uint8(buffer[bufferIndex + 2]),
+										A: uint8(buffer[bufferIndex + 3]),
+									})
+									bufferIndex += 4
+								}
+							}
+
+							pngBuffer := bytes.Buffer{}
+							png.Encode(&pngBuffer, img)
+							buffer = pngBuffer.Bytes()
+
+
+
+						case VTEX_FORMAT_PNG_R8G8B8A8_UINT:
+							// Nothing to do
+						default:
+							panic("Unknown image format")
+					}
+
+
+
 
 
 					fmt.Println(size, compressedMipSize, len(compressedMips))
