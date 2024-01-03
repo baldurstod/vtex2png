@@ -307,8 +307,12 @@ func (this *VtexFile) GetVtexData() []byte {
 						lz4.UncompressBlock(compressedBuffer, buffer)
 					}
 
+					decodeBuffer(&buffer, vtexData.ImageFormat, mipmapWidth, mipmapHeight)
+
 					switch int(vtexData.ImageFormat) {
 						case VTEX_FORMAT_DXT1, VTEX_FORMAT_DXT5, VTEX_FORMAT_R8, VTEX_FORMAT_R8G8B8A8_UINT, VTEX_FORMAT_BGRA8888, VTEX_FORMAT_BC4, VTEX_FORMAT_BC7:
+							// Encode to png
+
 							img := image.NewNRGBA(image.Rect(0, 0, mipmapWidth, mipmapHeight))
 
 							bufferIndex := 0
@@ -328,17 +332,11 @@ func (this *VtexFile) GetVtexData() []byte {
 							png.Encode(&pngBuffer, img)
 							buffer = pngBuffer.Bytes()
 
-
-
 						case VTEX_FORMAT_PNG_R8G8B8A8_UINT:
 							// Nothing to do
 						default:
 							panic("Unknown image format")
 					}
-
-
-
-
 
 					fmt.Println(size, compressedMipSize, len(compressedMips))
 
@@ -354,25 +352,25 @@ func (this *VtexFile) GetVtexData() []byte {
 	return buffer
 }
 
-
-/*
-char			 signature[4];		 // File signature ("VTF\0"). (or as little-endian integer, 0x00465456)
-//unsigned int	 version[2];		 // version[0].version[1] (currently 7.2).
-unsigned int	 header_size;		// Size of the header struct (16 byte aligned; currently 80 bytes).
-unsigned short width;				// Width of the largest mipmap in pixels. Must be a power of 2.
-unsigned short height;			 // Height of the largest mipmap in pixels. Must be a power of 2.
-unsigned int	 flags;				// VTF flags.
-unsigned short frames;			 // Number of frames, if animated (1 for no animation).
-unsigned short first_frame;		// First frame in animation (0 based).
-unsigned char	padding0[4];		// reflectivity padding (16 byte alignment).
-float			reflectivity[3];	// reflectivity vector.
-unsigned char	padding1[4];		// reflectivity padding (8 byte packing).
-float			bumpmap_scale;		// Bumpmap scale.
-unsigned int	 image_format;		 // High resolution image format.
-unsigned char	mipmap_count;		 // Number of mipmaps.
-unsigned int	 low_image_format;	 // Low resolution image format (always DXT1).
-unsigned char	low_width;			// Low resolution image width.
-unsigned char	low_height;		 // Low resolution image height.
-unsigned short depth;				// Depth of the largest mipmap in pixels.
-								 // Must be a power of 2. Can be 0 or 1 for a 2D texture (v7.2 only).
-*/
+func decodeBuffer(buffer *[]byte, imageFormat uint8, width int, height int) {
+	switch int(imageFormat) {
+		case VTEX_FORMAT_DXT1, VTEX_FORMAT_DXT5, VTEX_FORMAT_R8, VTEX_FORMAT_BC4, VTEX_FORMAT_BC7:
+			panic("Decode me")
+		case VTEX_FORMAT_BGRA8888:
+			// Swap red and blue
+			bufferIndex := 0
+			var a byte
+			for y := 0; y < height; y++ {
+				for x := 0; x < width; x++ {
+					a = (*buffer)[bufferIndex]
+					(*buffer)[bufferIndex] = (*buffer)[bufferIndex + 2]
+					(*buffer)[bufferIndex + 2] = a
+					bufferIndex += 4
+				}
+			}
+		case VTEX_FORMAT_PNG_R8G8B8A8_UINT, VTEX_FORMAT_R8G8B8A8_UINT:
+			// Nothing to do
+		default:
+			panic("Unknown image format in decodeBuffer")
+	}
+}
