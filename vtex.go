@@ -111,7 +111,7 @@ func (this *VtexData) GetImageSize(mipmapWidth int, mipmapHeight int) uint32 {
 			return uint32(math.Max(float64(mipmapWidth), 1) * math.Max(float64(mipmapHeight), 1)); // 1 byte per pixel;
 		case VTEX_FORMAT_R8G8B8A8_UINT, VTEX_FORMAT_BGRA8888:
 			return uint32(mipmapWidth * mipmapHeight * 4);// 4 bytes per pixel
-		case VTEX_FORMAT_PNG_R8G8B8A8_UINT:
+		case VTEX_FORMAT_PNG_R8G8B8A8_UINT, VTEX_FORMAT_PNG_PNG_DXT5:
 			return ^uint32(0)
 		case VTEX_FORMAT_BC4:
 			return uint32(math.Ceil(float64(mipmapWidth) / 4) * math.Ceil(float64(mipmapHeight) / 4) * 8);// 0.5 byte per pixel
@@ -323,7 +323,7 @@ func (this *VtexFile) GetVtexData() []byte {
 							png.Encode(&pngBuffer, img)
 							buffer = pngBuffer.Bytes()
 
-						case VTEX_FORMAT_PNG_R8G8B8A8_UINT:
+						case VTEX_FORMAT_PNG_R8G8B8A8_UINT, VTEX_FORMAT_PNG_PNG_DXT5:
 							// Nothing to do
 						default:
 							fmt.Println("ImageFormat: ", vtexData.ImageFormat)
@@ -360,7 +360,7 @@ func decodeBuffer(buffer *[]byte, imageFormat uint8, width int, height int) {
 					bufferIndex += 4
 				}
 			}
-		case VTEX_FORMAT_PNG_R8G8B8A8_UINT, VTEX_FORMAT_R8G8B8A8_UINT:
+		case VTEX_FORMAT_PNG_R8G8B8A8_UINT, VTEX_FORMAT_R8G8B8A8_UINT, VTEX_FORMAT_PNG_PNG_DXT5:
 			// Nothing to do
 		default:
 			fmt.Println("ImageFormat: ", imageFormat)
