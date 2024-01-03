@@ -168,9 +168,6 @@ func (this *VtexFile) SetData(datas []byte) {
 	if err != nil {
 		fmt.Println("binary.Read failed:", err)
 	}
-	//fmt.Println(this.Header.offset, this.Header)
-
-
 
 	this.resources = make([]VtexResource, this.Header.ResourceCount)
 	currentOffset := this.Header.GetResourceOffset()
@@ -184,14 +181,11 @@ func (this *VtexFile) SetData(datas []byte) {
 
 
 
-		fmt.Println(this.resources[i].GetResourceType(), this.resources[i].GetResourceOffset())
+		//fmt.Println(this.resources[i].GetResourceType(), this.resources[i].GetResourceOffset())
 		currentOffset += 12
 	}
 
-
-	fmt.Println(this.Header, this.resources)
-
-	//binary.Read(file, binary.LittleEndian, &thing)
+	//fmt.Println(this.Header, this.resources)
 }
 
 
@@ -205,19 +199,19 @@ func (this *VtexFile) GetVtexData() []byte {
 	for i := int32(0); i < this.Header.ResourceCount; i++ {
 		res := &this.resources[i]
 		if (res.GetResourceType() == "DATA") {
-			fmt.Println(res, res.GetResourceOffset())
+			//fmt.Println(res, res.GetResourceOffset())
 			reader.Seek(int64(res.GetResourceOffset()), io.SeekStart)
 			vtexDataBlock := VtexDataBlock{}
 			vtexDataBlock.offset = res.GetResourceOffset()
 			vtexData := &vtexDataBlock.Data
 			binary.Read(reader, binary.LittleEndian, vtexData)
-			fmt.Println("VTEX data", vtexData)
+			//fmt.Println("VTEX data", vtexData)
 
 			vtexExtraDatas := make([]VtexExtraData, vtexData.ExtraDataCount)
 			offset := vtexDataBlock.GetExtraDataOffset()
 			reader.Seek(int64(offset), io.SeekStart)
 
-			fmt.Println("offset", offset)
+			//fmt.Println("offset", offset)
 			for extraDataIndex := uint32(0); extraDataIndex < vtexData.ExtraDataCount; extraDataIndex++ {
 				vtexExtraData := &vtexExtraDatas[extraDataIndex]
 				vtexExtraData.offset = offset
@@ -232,7 +226,7 @@ func (this *VtexFile) GetVtexData() []byte {
 
 				if (vtexExtraData.ExtraDataType == VTEX_EXTRA_DATA_TYPE_COMPRESSED_MIP_SIZE) {
 					reader.Seek(int64(vtexExtraData.GetExtraDataOffset()), io.SeekStart)
-					fmt.Println("Extra data", vtexExtraData, vtexExtraData.GetExtraDataOffset())
+					//fmt.Println("Extra data", vtexExtraData, vtexExtraData.GetExtraDataOffset())
 
 					var unk1 uint32
 					var unk2 uint32
@@ -242,21 +236,17 @@ func (this *VtexFile) GetVtexData() []byte {
 					binary.Read(reader, binary.LittleEndian, &compressedMipsCount)
 
 					compressedMips = make([]uint32, compressedMipsCount)
-					fmt.Println("compressedMipsCount", compressedMipsCount)
+					//fmt.Println("compressedMipsCount", compressedMipsCount)
 
 					for mipsIndex := uint32(0); mipsIndex < compressedMipsCount; mipsIndex++ {
-
-
 						binary.Read(reader, binary.LittleEndian, &compressedMips[mipsIndex])
-
-
 					}
-					fmt.Println(compressedMips)
+					//fmt.Println(compressedMips)
 				}
 			}
 
 
-			fmt.Println(vtexExtraDatas);
+			//fmt.Println(vtexExtraDatas);
 
 			faceCount := 1;
 			if ((vtexData.Flags & uint16(VTEX_FLAG_CUBE_TEXTURE)) == uint16(VTEX_FLAG_CUBE_TEXTURE)) {
@@ -338,7 +328,7 @@ func (this *VtexFile) GetVtexData() []byte {
 							panic("Unknown image format")
 					}
 
-					fmt.Println(size, compressedMipSize, len(compressedMips))
+					//fmt.Println(size, compressedMipSize, len(compressedMips))
 
 					compressedMipsIndex++
 				}
@@ -346,7 +336,7 @@ func (this *VtexFile) GetVtexData() []byte {
 				mipmapHeight *= 2;
 			}
 
-			fmt.Println(vtexData, faceCount, mipmapWidth, mipmapHeight);
+			//fmt.Println(vtexData, faceCount, mipmapWidth, mipmapHeight);
 		}
 	}
 	return buffer
