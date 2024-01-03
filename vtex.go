@@ -347,6 +347,7 @@ func (this *VtexFile) GetVtexData() []byte {
 func decodeBuffer(buffer *[]byte, imageFormat uint8, width int, height int) {
 	switch int(imageFormat) {
 		case VTEX_FORMAT_DXT1, VTEX_FORMAT_DXT5, VTEX_FORMAT_R8, VTEX_FORMAT_BC4, VTEX_FORMAT_BC7:
+			fmt.Println("ImageFormat: ", imageFormat)
 			panic("Decode me")
 		case VTEX_FORMAT_BGRA8888:
 			// Swap red and blue
