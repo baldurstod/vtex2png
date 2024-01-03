@@ -118,7 +118,8 @@ func (this *VtexData) GetImageSize(mipmapWidth int, mipmapHeight int) uint32 {
 		case VTEX_FORMAT_BC7:
 			return uint32(math.Max(float64(mipmapWidth), 4) * math.Max(float64(mipmapHeight), 4));// 1 byte per pixel, blocks of 16 bytes
 		default:
-			panic("Unknown image format")
+			fmt.Println("ImageFormat: ", this.ImageFormat)
+			panic("Unknown image format in GetImageSize")
 
 /*
 		case VTEX_FORMAT_DXT1:
@@ -325,7 +326,8 @@ func (this *VtexFile) GetVtexData() []byte {
 						case VTEX_FORMAT_PNG_R8G8B8A8_UINT:
 							// Nothing to do
 						default:
-							panic("Unknown image format")
+							fmt.Println("ImageFormat: ", vtexData.ImageFormat)
+							panic("Unknown image format in GetVtexData")
 					}
 
 					//fmt.Println(size, compressedMipSize, len(compressedMips))
@@ -361,6 +363,7 @@ func decodeBuffer(buffer *[]byte, imageFormat uint8, width int, height int) {
 		case VTEX_FORMAT_PNG_R8G8B8A8_UINT, VTEX_FORMAT_R8G8B8A8_UINT:
 			// Nothing to do
 		default:
+			fmt.Println("ImageFormat: ", imageFormat)
 			panic("Unknown image format in decodeBuffer")
 	}
 }

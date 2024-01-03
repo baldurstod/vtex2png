@@ -13,10 +13,30 @@ func main() {
 	var outputFile string
 	var frame int
 
+
 	flag.StringVar(&inputFile, "i", "", "Input file")
 	flag.StringVar(&outputFile, "o", "", "Output file")
 	flag.IntVar(&frame, "f", 0, "Frame number")
 	flag.Parse()
+
+
+	if inputFile == "" {
+		fmt.Println("No input file provided. Use the flag -i")
+		os.Exit(1)
+	}
+
+	if outputFile == "" {
+		fmt.Println("No output file provided. Use the flag -o")
+		os.Exit(1)
+	}
+
+	fmt.Println(inputFile)
+
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("error while processing", inputFile, r)
+		}
+	}()
 
 	convertToPNG(inputFile, outputFile, frame)
 }
