@@ -30,8 +30,6 @@ func main() {
 		os.Exit(1)
 	}
 
-	fmt.Println(inputFile)
-
 	defer func() {
 		if r := recover(); r != nil {
 			fmt.Println("error while processing", inputFile, r)
