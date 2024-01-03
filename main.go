@@ -6,6 +6,7 @@ import (
 	"flag"
 	"os"
 	"log"
+	"runtime/debug"
 )
 
 func main() {
@@ -32,7 +33,7 @@ func main() {
 
 	defer func() {
 		if r := recover(); r != nil {
-			fmt.Println("error while processing", inputFile, r)
+			fmt.Println("error while processing", inputFile, r, string(debug.Stack()))
 		}
 	}()
 

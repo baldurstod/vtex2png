@@ -3,7 +3,7 @@ package main
 import (
 	//"os"
 	"io"
-	//"log"
+	"log"
 	"fmt"
 	"bytes"
 	"math"
@@ -12,6 +12,7 @@ import (
 	"image"
 	"image/color"
 	"image/png"
+	"github.com/mauserzjeh/dxt"
 )
 
 type VtexHeader struct {
@@ -298,7 +299,7 @@ func (this *VtexFile) GetVtexData() []byte {
 						lz4.UncompressBlock(compressedBuffer, buffer)
 					}
 
-					decodeBuffer(&buffer, vtexData.ImageFormat, mipmapWidth, mipmapHeight)
+					buffer = decodeBuffer(&buffer, vtexData.ImageFormat, mipmapWidth, mipmapHeight)
 
 					switch int(vtexData.ImageFormat) {
 						case VTEX_FORMAT_DXT1, VTEX_FORMAT_DXT5, VTEX_FORMAT_R8, VTEX_FORMAT_R8G8B8A8_UINT, VTEX_FORMAT_BGRA8888, VTEX_FORMAT_BC4, VTEX_FORMAT_BC7:
@@ -344,9 +345,21 @@ func (this *VtexFile) GetVtexData() []byte {
 	return buffer
 }
 
-func decodeBuffer(buffer *[]byte, imageFormat uint8, width int, height int) {
+func decodeBuffer(buffer *[]byte, imageFormat uint8, width int, height int) []byte {
 	switch int(imageFormat) {
-		case VTEX_FORMAT_DXT1, VTEX_FORMAT_DXT5, VTEX_FORMAT_R8, VTEX_FORMAT_BC4, VTEX_FORMAT_BC7:
+		case VTEX_FORMAT_DXT1:
+			rgbaBytes, err := dxt.DecodeDXT1(*buffer, uint(width), uint(height))
+			if err != nil {
+				log.Fatal(err)
+			}
+			return rgbaBytes
+		case VTEX_FORMAT_DXT5:
+			rgbaBytes, err := dxt.DecodeDXT5(*buffer, uint(width), uint(height))
+			if err != nil {
+				log.Fatal(err)
+			}
+			return rgbaBytes
+		case VTEX_FORMAT_DXT1, VTEX_FORMAT_R8, VTEX_FORMAT_BC4, VTEX_FORMAT_BC7:
 			fmt.Println("ImageFormat: ", imageFormat)
 			panic("Decode me")
 		case VTEX_FORMAT_BGRA8888:
@@ -367,4 +380,5 @@ func decodeBuffer(buffer *[]byte, imageFormat uint8, width int, height int) {
 			fmt.Println("ImageFormat: ", imageFormat)
 			panic("Unknown image format in decodeBuffer")
 	}
+	return *buffer
 }
