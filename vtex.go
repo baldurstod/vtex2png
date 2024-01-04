@@ -240,6 +240,10 @@ func (this *VtexFile) GetVtexData() []byte {
 					binary.Read(reader, binary.LittleEndian, &unk2)
 					binary.Read(reader, binary.LittleEndian, &compressedMipsCount)
 
+					if verbose {
+						fmt.Println(compressedMipsCount, reader.Len())
+					}
+
 					compressedMips = make([]uint32, compressedMipsCount)
 					//fmt.Println("compressedMipsCount", compressedMipsCount)
 
@@ -265,6 +269,9 @@ func (this *VtexFile) GetVtexData() []byte {
 
 			reader.Seek(int64(this.Header.FileLength), io.SeekStart)
 			for mipIndex := uint8(0); mipIndex < vtexData.NumMipMap; mipIndex++ {
+				if verbose {
+					fmt.Println("Current mipmap:", mipIndex, "width:", mipmapWidth, "height", mipmapHeight)
+				}
 			//for(int resIndex = 0; resIndex < vtex->vtex_num_mipLevels; resIndex++) {
 				//Todo : add frame support + depth support
 				for faceIndex := 0; faceIndex < faceCount; faceIndex++ {
@@ -273,7 +280,11 @@ func (this *VtexFile) GetVtexData() []byte {
 
 					compressedMipSize := size
 					if (compressedMipsIndex < len(compressedMips)) {
-						compressedMipSize = compressedMips[compressedMipsIndex]
+						compressedMipSize = compressedMips[len(compressedMips) - compressedMipsIndex - 1]
+					}
+
+					if verbose {
+						fmt.Println("Mipmap data size:", size, compressedMipSize)
 					}
 
 

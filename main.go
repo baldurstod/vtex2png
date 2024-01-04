@@ -15,7 +15,6 @@ func main() {
 	var outputFile string
 	var frame int
 
-
 	flag.StringVar(&inputFile, "i", "", "Input file")
 	flag.StringVar(&outputFile, "o", "", "Output file")
 	flag.IntVar(&frame, "f", 0, "Frame number")
