@@ -207,6 +207,9 @@ func (this *VtexFile) GetVtexData() []byte {
 			vtexDataBlock.offset = res.GetResourceOffset()
 			vtexData := &vtexDataBlock.Data
 			binary.Read(reader, binary.LittleEndian, vtexData)
+			if verbose {
+				fmt.Println("Image format:", vtexData.ImageFormat, "width:", vtexData.Width, "height:", vtexData.Height, "mipmaps:", vtexData.NumMipMap)
+			}
 			//fmt.Println("VTEX data", vtexData)
 
 			vtexExtraDatas := make([]VtexExtraData, vtexData.ExtraDataCount)

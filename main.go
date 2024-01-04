@@ -1,6 +1,5 @@
 package main
 
-
 import (
 	"fmt"
 	"flag"
@@ -8,6 +7,8 @@ import (
 	"log"
 	"runtime/debug"
 )
+
+var verbose bool
 
 func main() {
 	var inputFile string
@@ -18,8 +19,8 @@ func main() {
 	flag.StringVar(&inputFile, "i", "", "Input file")
 	flag.StringVar(&outputFile, "o", "", "Output file")
 	flag.IntVar(&frame, "f", 0, "Frame number")
+	flag.BoolVar(&verbose, "v", false, "Verbose")
 	flag.Parse()
-
 
 	if inputFile == "" {
 		fmt.Println("No input file provided. Use the flag -i")
@@ -42,6 +43,10 @@ func main() {
 
 
 func convertToPNG(inputFile string, outputFile string, frame int) {
+	if verbose {
+		fmt.Println("Processing file:", inputFile)
+	}
+
 	data, err := os.ReadFile(inputFile)
 	if err != nil {
 		log.Fatal(err)
